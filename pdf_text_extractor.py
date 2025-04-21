@@ -1,10 +1,10 @@
 # pdf_text_extractor.py
 """
 This module extracts text from PDF files.
-We use pdfplumber for accurate text extraction with page-wise handling.
+We use PyPDF2 for text extraction with page-wise handling.
 """
 
-import pdfplumber
+import PyPDF2
 import os
 
 def extract_text_from_pdf(pdf_path):
@@ -22,14 +22,19 @@ def extract_text_from_pdf(pdf_path):
 
     full_text = ""
     try:
-        with pdfplumber.open(pdf_path) as pdf:
-            print(f"[INFO] Total pages found: {len(pdf)}")
-            for page_number, page in enumerate(pdf, start=1):
+        with open(pdf_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            total_pages = len(pdf_reader.pages)
+            print(f"[INFO] Total pages found: {total_pages}")
+            
+            for page_number in range(total_pages):
+                page = pdf_reader.pages[page_number]
                 text = page.extract_text()
+                
                 if text:
-                    full_text += f"\n\n[Page {page_number}]\n{text}"
+                    full_text += f"\n\n[Page {page_number + 1}]\n{text}"
                 else:
-                    print(f"[WARNING] No text found on Page {page_number}")
+                    print(f"[WARNING] No text found on Page {page_number + 1}")
 
         return full_text.strip()
 

@@ -4,11 +4,11 @@ This module interacts with the OpenAI API.
 It sends structured prompts to generate notes, flashcards, formula sheets, etc.
 """
 
-import openai
+from openai import OpenAI
 from config import OPENAI_API_KEY
 
-# Initialize OpenAI API with key from config file
-openai.api_key = OPENAI_API_KEY
+# Initialize OpenAI client with key from config file
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def generate_study_material(content_text, material_type="notes"):
     """
@@ -41,8 +41,8 @@ def generate_study_material(content_text, material_type="notes"):
     prompt = prompt_templates.get(material_type.lower(), prompt_templates["notes"])
 
     try:
-        # Call OpenAI API with our prompt
-        response = openai.ChatCompletion.create(
+        # Call OpenAI API with our prompt using the updated client format
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an expert academic content generator."},
@@ -52,7 +52,7 @@ def generate_study_material(content_text, material_type="notes"):
             max_tokens=2000   # Maximum length of generated response
         )
 
-        response_text = response['choices'][0]['message']['content']
+        response_text = response.choices[0].message.content
         return response_text.strip()
 
     except Exception as e:
